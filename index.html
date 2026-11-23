@@ -1,23 +1,406 @@
----
-layout: default
----
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tan Nhat Linh LE · 5G security and applied AI</title>
+<meta name="description" content="Tan Nhat Linh LE, PhD. Postdoctoral researcher in 5G/6G network security at UVSQ, Université Paris-Saclay, and technical lead at Tihado, building AI prototypes.">
+<meta property="og:title" content="Tan Nhat Linh LE">
+<meta property="og:description" content="5G/6G network security researcher and applied AI engineer in Paris.">
+<meta property="og:url" content="https://nlag.github.io/">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&family=Public+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #F4F6F8;
+    --ink: #1A2230;
+    --slate: #5A6474;
+    --rule: #D5DBE2;
+    --teal: #0E7C6B;
+    --teal-soft: #DCEFEA;
+    --gold: #C8962E;
+    --serif: "Newsreader", Georgia, serif;
+    --sans: "Public Sans", system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font: 400 17px/1.6 var(--sans);
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: var(--teal); text-decoration-thickness: 1px; text-underline-offset: 3px; }
+  a:hover { text-decoration-thickness: 2px; }
+  :focus-visible { outline: 2px solid var(--teal); outline-offset: 3px; border-radius: 2px; }
 
-<div class="home">
+  .wrap {
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 0 32px;
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    gap: 72px;
+  }
 
-  <h1 class="page-heading">Posts</h1>
+  /* ---------- left column ---------- */
+  .side {
+    position: sticky;
+    top: 0;
+    align-self: start;
+    min-height: 100vh;
+    padding: 64px 0 48px;
+    display: flex;
+    flex-direction: column;
+  }
+  .side h1 {
+    font: 500 44px/1.05 var(--serif);
+    letter-spacing: -0.01em;
+    margin: 0 0 6px;
+  }
+  .side .degree { font: 400 18px/1.4 var(--serif); color: var(--slate); margin: 0 0 22px; }
+  .side .role { margin: 0 0 28px; color: var(--ink); max-width: 30ch; }
+  .side nav ul { list-style: none; padding: 0; margin: 0 0 32px; }
+  .side nav a {
+    display: block;
+    padding: 5px 0;
+    color: var(--slate);
+    text-decoration: none;
+    font-size: 15px;
+  }
+  .side nav a:hover, .side nav a.active { color: var(--ink); }
+  .side nav a.active { box-shadow: inset 2px 0 0 var(--teal); padding-left: 12px; }
+  .links { margin-top: auto; display: flex; flex-wrap: wrap; gap: 10px 18px; font-size: 15px; }
+  .links a { color: var(--ink); }
+  .cv-btn {
+    display: inline-block;
+    margin-bottom: 22px;
+    padding: 9px 16px;
+    border: 1px solid var(--ink);
+    border-radius: 3px;
+    color: var(--ink);
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 15px;
+    align-self: flex-start;
+  }
+  .cv-btn:hover { background: var(--ink); color: var(--paper); }
 
-  <ul class="post-list">
-    {% for post in site.posts %}
-      <li>
-        <span class="post-meta">{{ post.date | date: "%b %-d, %Y" }}</span>
+  /* ---------- right column ---------- */
+  main { padding: 64px 0 96px; min-width: 0; }
+  section { padding: 8px 0 56px; scroll-margin-top: 24px; }
+  h2 {
+    font: 500 30px/1.2 var(--serif);
+    margin: 0 0 22px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--rule);
+  }
+  h3 { font: 600 17px/1.35 var(--sans); margin: 0; }
+  p { margin: 0 0 14px; max-width: 68ch; }
+  .muted { color: var(--slate); }
+  .small { font-size: 15px; }
 
-        <h2>
-          <a class="post-link" href="{{ post.url | prepend: site.baseurl }}">{{ post.title }}</a>
-        </h2>
-      </li>
-    {% endfor %}
-  </ul>
+  /* signature: where the IDS sits in a 5G core */
+  .diagram { margin: 0 0 40px; }
+  .diagram svg { width: 100%; height: auto; display: block; }
+  .diagram figcaption { font-size: 14px; color: var(--slate); margin-top: 10px; max-width: 64ch; }
+  .diagram .flow { stroke-dasharray: 5 6; animation: flow 1.6s linear infinite; }
+  @keyframes flow { to { stroke-dashoffset: -22; } }
+  @media (prefers-reduced-motion: reduce) { .diagram .flow { animation: none; } }
 
-  <p class="rss-subscribe">subscribe <a href="{{ "/feed.xml" | prepend: site.baseurl }}">via RSS</a></p>
+  .entries { display: grid; gap: 26px; }
+  .entry { display: grid; grid-template-columns: 1fr auto; gap: 2px 20px; }
+  .entry .when { color: var(--slate); font-size: 15px; white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .entry .where { grid-column: 1 / -1; color: var(--slate); font-size: 15px; }
+  .entry ul { grid-column: 1 / -1; margin: 8px 0 0; padding-left: 18px; }
+  .entry li { margin-bottom: 4px; max-width: 68ch; }
 
+  .pubs { list-style: none; padding: 0; margin: 0; display: grid; gap: 22px; }
+  .pubs .venue { font: italic 400 17px/1.4 var(--serif); color: var(--slate); }
+  .pubs .authors { font-size: 15px; color: var(--slate); }
+  .pubs .authors b { color: var(--ink); font-weight: 600; }
+
+  .projects { display: grid; grid-template-columns: 1fr 1fr; gap: 0; border-top: 1px solid var(--rule); }
+  .project { padding: 20px 24px 22px 0; border-bottom: 1px solid var(--rule); }
+  .project:nth-child(odd) { border-right: 1px solid var(--rule); }
+  .project:nth-child(even) { padding-left: 24px; padding-right: 0; }
+  .project h3 a { color: var(--ink); text-decoration: none; }
+  .project h3 a:hover { text-decoration: underline; }
+  .project .prize { color: #8A6418; font-size: 14px; font-weight: 500; margin: 4px 0 8px; display: flex; gap: 8px; align-items: baseline; }
+  .project .prize::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--gold); flex: none; transform: translateY(-1px); }
+  .project p { font-size: 15px; margin: 0; color: var(--slate); }
+
+  .awards { list-style: none; padding: 0; margin: 0; }
+  .awards li {
+    display: grid;
+    grid-template-columns: 92px 1fr;
+    gap: 16px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--rule);
+  }
+  .awards .yr { color: var(--slate); font-variant-numeric: tabular-nums; font-size: 15px; padding-top: 1px; }
+  .awards .note { display: block; color: var(--slate); font-size: 15px; }
+
+  .contact p { font: 400 22px/1.45 var(--serif); max-width: 40ch; }
+  .email-btn {
+    font: 500 16px var(--sans);
+    background: var(--teal);
+    color: #fff;
+    border: 0;
+    border-radius: 3px;
+    padding: 11px 18px;
+    cursor: pointer;
+  }
+  .email-btn:hover { background: #0A6556; }
+  .email-out { margin-left: 14px; font-size: 16px; }
+
+  footer { font-size: 14px; color: var(--slate); padding-top: 24px; border-top: 1px solid var(--rule); }
+
+  @media (max-width: 900px) {
+    .wrap { grid-template-columns: 1fr; gap: 0; padding: 0 22px; }
+    .side { position: static; min-height: 0; padding: 44px 0 8px; }
+    .side nav { display: none; }
+    .links { margin-top: 0; }
+    main { padding-top: 32px; }
+    .projects { grid-template-columns: 1fr; }
+    .project, .project:nth-child(even) { padding: 18px 0; border-right: 0; }
+    .entry { grid-template-columns: 1fr; }
+    .awards li { grid-template-columns: 1fr; gap: 2px; }
+    .diagram { overflow-x: auto; }
+    .diagram svg { min-width: 560px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <aside class="side">
+    <h1>Tan Nhat Linh LE</h1>
+    <p class="degree">PhD, Université Paris-Saclay</p>
+    <p class="role">Researcher in 5G/6G network security and engineer building applied AI products.</p>
+    <nav aria-label="Sections">
+      <ul>
+        <li><a href="#about">About</a></li>
+        <li><a href="#research">Research</a></li>
+        <li><a href="#projects">Projects</a></li>
+        <li><a href="#recognition">Recognition</a></li>
+        <li><a href="#experience">Experience</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ul>
+    </nav>
+    <a class="cv-btn" href="cv.pdf">Download CV (PDF)</a>
+    <div class="links">
+      <a href="https://linkedin.com/in/le-tan-nhat-linh">LinkedIn</a>
+      <a href="https://github.com/NLag">GitHub</a>
+      <a href="https://theses.fr/2025UPASG090">PhD thesis</a>
+      <a href="https://tihado.com/">Tihado</a>
+    </div>
+  </aside>
+
+  <main>
+
+    <section id="about" aria-labelledby="about-h">
+      <h2 id="about-h" class="visually-hidden" style="position:absolute;left:-9999px">About</h2>
+
+      <figure class="diagram">
+        <svg viewBox="0 0 720 210" role="img" aria-labelledby="dg-t">
+          <title id="dg-t">Diagram: IoT traffic passes from devices through a 5G base station into the 5G Core, where an AI intrusion detection network function inspects it alongside the AMF, UPF and NWDAF.</title>
+          <!-- devices -->
+          <g font-family="Public Sans, sans-serif" font-size="13" fill="#1A2230">
+            <circle cx="40" cy="62" r="7" fill="none" stroke="#5A6474" stroke-width="1.5"/>
+            <circle cx="40" cy="105" r="7" fill="none" stroke="#5A6474" stroke-width="1.5"/>
+            <circle cx="40" cy="148" r="7" fill="none" stroke="#5A6474" stroke-width="1.5"/>
+            <text x="40" y="190" text-anchor="middle" fill="#5A6474">IoT devices</text>
+            <!-- gNB -->
+            <path d="M150 140 L165 70 L180 140 Z" fill="none" stroke="#5A6474" stroke-width="1.5"/>
+            <path d="M152 70 q13 -14 26 0" fill="none" stroke="#5A6474" stroke-width="1.5"/>
+            <text x="165" y="190" text-anchor="middle" fill="#5A6474">gNB</text>
+            <!-- links devices→gNB -->
+            <path class="flow" d="M50 62 L152 100 M50 105 L152 105 M50 148 L152 110" stroke="#5A6474" stroke-width="1.2" fill="none"/>
+            <!-- core box -->
+            <rect x="240" y="20" width="460" height="160" rx="4" fill="#FFFFFF" stroke="#D5DBE2"/>
+            <text x="256" y="44" font-family="Newsreader, serif" font-size="17" fill="#1A2230">5G Core</text>
+            <path class="flow" d="M180 105 L262 105" stroke="#5A6474" stroke-width="1.2" fill="none"/>
+            <!-- NFs -->
+            <g font-weight="500">
+              <rect x="262" y="86" width="84" height="38" rx="3" fill="#F4F6F8" stroke="#C3CBD4"/>
+              <text x="304" y="110" text-anchor="middle">AMF</text>
+              <rect x="372" y="86" width="84" height="38" rx="3" fill="#F4F6F8" stroke="#C3CBD4"/>
+              <text x="414" y="110" text-anchor="middle">UPF</text>
+              <rect x="482" y="126" width="94" height="38" rx="3" fill="#F4F6F8" stroke="#C3CBD4"/>
+              <text x="529" y="150" text-anchor="middle">NWDAF</text>
+              <rect x="482" y="56" width="196" height="50" rx="3" fill="#DCEFEA" stroke="#0E7C6B" stroke-width="1.6"/>
+              <text x="580" y="78" text-anchor="middle" fill="#0E7C6B" font-weight="600">AI intrusion detection</text>
+              <text x="580" y="96" text-anchor="middle" fill="#0E7C6B" font-size="12" font-weight="400">my network function</text>
+            </g>
+            <path d="M346 105 L372 105" stroke="#5A6474" stroke-width="1.2"/>
+            <path class="flow" d="M346 98 C 400 60, 440 72, 482 76" stroke="#0E7C6B" stroke-width="1.4" fill="none"/>
+            <path class="flow" d="M456 100 L482 92" stroke="#0E7C6B" stroke-width="1.4" fill="none"/>
+            <path d="M529 126 L529 106" stroke="#0E7C6B" stroke-width="1.4" stroke-dasharray="3 3"/>
+          </g>
+        </svg>
+        <figcaption>My PhD work, in one picture: an AI intrusion detection system that runs inside the 5G Core as a standard 3GPP network function, reading IoT traffic from the AMF and UPF and sharing what it learns through the NWDAF.</figcaption>
+      </figure>
+
+      <p>I'm a postdoctoral researcher at the DAVID Lab, UVSQ (Université Paris-Saclay), where I work on network security for 5G and 6G, currently with quantum machine learning. My PhD, defended in December 2025, built an AI-based intrusion detection system for IoT traffic that follows the 3GPP standard and runs inside the 5G Core.</p>
+      <p>I'm also technical lead at <a href="https://tihado.com/">Tihado</a>, where I take AI products from idea to working prototype: voice-first learning tools, fitness coaching, video automation and robot control. Before that I studied cryptography and information security in Limoges, and I still compete in the NSUCRYPTO cryptography olympiad.</p>
+    </section>
+
+    <section id="research" aria-labelledby="research-h">
+      <h2 id="research-h">Research</h2>
+      <p class="muted">Intrusion detection for 5G Cellular IoT, from a single network function to a federated system across regions.</p>
+      <ol class="pubs">
+        <li>
+          <h3><a href="https://doi.org/10.1109/JIOT.2026.3744694">A Novel Cellular IoT Federated Regional IDS based on Distributed NWDAF within 3GPP 5G Core Network</a></h3>
+          <div class="venue">IEEE Internet of Things Journal, 2026</div>
+          <div class="authors"><b>T. N. Linh LE</b>, B. A. Salem, N. Aitsaadi, X. Du</div>
+        </li>
+        <li>
+          <h3><a href="https://doi.org/10.1109/LCN60385.2024.10639697">AI/ML-Based IDS as 5G Core Network Function in the Control Plane for IP/Non-IP CIoT Traffic</a></h3>
+          <div class="venue">IEEE 49th Conference on Local Computer Networks (LCN), Normandy, 2024</div>
+          <div class="authors"><b>T. N. Linh LE</b>, B. A. Salem, D. Appadoo, N. Aitsaadi, X. Du</div>
+        </li>
+        <li>
+          <h3><a href="https://doi.org/10.1109/GLOBECOM54140.2023.10437158">5G-IoT-IDS: Intrusion Detection System for CIoT as Network Function in 5G Core Network</a></h3>
+          <div class="venue">IEEE Global Communications Conference (GLOBECOM), Kuala Lumpur, 2023</div>
+          <div class="authors"><b>T. N. Linh LE</b>, B. A. Salem, E. A. Ahad, N. Aitsaadi, X. Du</div>
+        </li>
+        <li>
+          <h3><a href="https://theses.fr/2025UPASG090">A novel AI-based Intrusion Detection System for 3GPP 5G-IoT traffic</a></h3>
+          <div class="venue">PhD thesis, Université Paris-Saclay, 2025</div>
+          <div class="authors">Supervised by N. Aitsaadi and B. A. Salem</div>
+        </li>
+      </ol>
+    </section>
+
+    <section id="projects" aria-labelledby="projects-h">
+      <h2 id="projects-h">Projects at Tihado</h2>
+      <div class="projects">
+        <article class="project">
+          <h3><a href="https://tihado.com/projects/lumen/">Lumen</a></h3>
+          <div class="prize">3rd Prize, {Tech: Europe} Paris AI Hackathon 2026</div>
+          <p>Voice-first lesson authoring. Speech-to-text, LLM orchestration and RAG turn a spoken idea into a lesson with web pages and media.</p>
+        </article>
+        <article class="project">
+          <h3><a href="https://tihado.com/projects/posey/">Posey</a></h3>
+          <div class="prize">1st Place, Startup Track, WELTARE Spring Sprint 2026</div>
+          <p>An AI fitness coach on your phone. Real-time pose estimation tracks each exercise, and you talk to it by voice.</p>
+        </article>
+        <article class="project">
+          <h3><a href="https://tihado.com/projects/vidzly/">Vidzly</a></h3>
+          <div class="prize">1st Prize for Creativity, Gradio Agents &amp; MCP Hackathon 2025</div>
+          <p>An agent pipeline for video: it analyses clips, writes a script, generates media and assembles the final cut.</p>
+        </article>
+        <article class="project">
+          <h3><a href="https://tihado.com/projects/eatable/">EatAble</a></h3>
+          <div class="prize">3rd Prize, AMD Robotics Hackathon 2025</div>
+          <p>A voice-controlled robotic assistant. Speech recognition and an LLM parse commands, and vision-language-action models drive the arm from several cameras.</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="recognition" aria-labelledby="recognition-h">
+      <h2 id="recognition-h">Recognition</h2>
+      <ul class="awards">
+        <li><span class="yr">2024–2025</span><span>1st Place, Professional Team category, NSUCRYPTO International Olympiad in Cryptography (11th and 12th editions)</span></li>
+        <li><span class="yr">2021–2023</span><span>3rd Place, Professional category, NSUCRYPTO (8th to 10th editions)<span class="note">Best Solution for the Quantum Entanglement problem (2022); best partial solutions for Public Key Cryptography (2022) and Quantum Error Correction (2021)</span></span></li>
+        <li><span class="yr">2020</span><span>3rd Place in both University individual and University team categories, NSUCRYPTO (7th edition)<span class="note">Best Solutions for the Image Compression and Hash Collisions problems</span></span></li>
+        <li><span class="yr">2025–2026</span><span>Four hackathon prizes for Tihado projects, listed under <a href="#projects">Projects</a></span></li>
+      </ul>
+    </section>
+
+    <section id="experience" aria-labelledby="experience-h">
+      <h2 id="experience-h">Experience</h2>
+      <div class="entries">
+        <div class="entry">
+          <h3>Technical Lead, Tihado</h3><span class="when">Nov 2025 – now</span>
+          <span class="where">Paris, France</span>
+        </div>
+        <div class="entry">
+          <h3>Postdoctoral Researcher, DAVID Lab, UVSQ</h3><span class="when">Oct 2025 – now</span>
+          <span class="where">Université Paris-Saclay, Versailles</span>
+          <ul>
+            <li>Deployed the federated NWDAF-based IDS on an OpenAirInterface 5G testbed with Docker, Helm and Kubernetes</li>
+            <li>Researching quantum machine learning for intrusion detection in 5G/6G networks</li>
+          </ul>
+        </div>
+        <div class="entry">
+          <h3>Research Engineer, TRiBE team, Inria Saclay</h3><span class="when">Nov 2024 – Jun 2025</span>
+          <span class="where">Palaiseau, during the 4th year of my PhD</span>
+          <ul>
+            <li>Designed a federated regional IDS for IoT 5G edge networks on the 3GPP distributed NWDAF, using FedAvg and Federated Distillation</li>
+          </ul>
+        </div>
+        <div class="entry">
+          <h3>PhD Researcher, DAVID Lab, UVSQ</h3><span class="when">Jan 2022 – Dec 2025</span>
+          <span class="where">Université Paris-Saclay, Versailles</span>
+          <ul>
+            <li>Built a 3GPP-compliant ML-based IDS as a 5G Core network function on Open5GS</li>
+            <li>Developed a Transformer-based IDS for IP and non-IP Cellular IoT traffic on the Amarisoft 5G platform</li>
+            <li>Contributed to the Bpifrance-funded <a href="https://csf-infrastructures-numeriques.fr/plateforme/plateforme-5g-mmtc/">5G-mMTC</a> project (2022–2024)</li>
+          </ul>
+        </div>
+        <div class="entry">
+          <h3>Research Intern, Télécom Paris</h3><span class="when">Mar – Sep 2021</span>
+          <span class="where">Master's thesis on verifiable delay functions for permissionless blockchain agreement</span>
+        </div>
+        <div class="entry">
+          <h3>Developer, VMODEV</h3><span class="when">Nov 2018 – Jun 2019</span>
+          <span class="where">Hanoi. Drone obstacle avoidance with ROS; ML and image recognition on AWS</span>
+        </div>
+        <div class="entry">
+          <h3>Research Intern, Czech Technical University in Prague</h3><span class="when">May – Aug 2018</span>
+          <span class="where">Bachelor's thesis on dimensionality reduction of EEG signals</span>
+        </div>
+      </div>
+
+      <h3 style="margin:40px 0 14px; font:500 22px/1.3 var(--serif)">Education</h3>
+      <div class="entries">
+        <div class="entry"><h3>PhD, Communication Security of 5G Systems</h3><span class="when">2022 – 2025</span><span class="where">UVSQ, Université Paris-Saclay</span></div>
+        <div class="entry"><h3>MSc, Computer &amp; Information Security (CRYPTIS)</h3><span class="when">2019 – 2021</span><span class="where">Université de Limoges, mention Bien</span></div>
+        <div class="entry"><h3>BSc, Information and Communications Technology</h3><span class="when">2015 – 2018</span><span class="where">University of Science and Technology of Hanoi, mention Bien</span></div>
+      </div>
+    </section>
+
+    <section id="contact" class="contact" aria-labelledby="contact-h">
+      <h2 id="contact-h">Contact</h2>
+      <p>I'm open to roles in network security, 5G/6G research and applied AI, in Paris or remote.</p>
+      <button class="email-btn" type="button" id="email-btn">Show email address</button><span class="email-out" id="email-out" aria-live="polite"></span>
+    </section>
+
+    <footer>Last updated November 2026.</footer>
+  </main>
 </div>
+
+<script>
+  // Email is assembled on click so it never appears in the page source for scrapers.
+  document.getElementById('email-btn').addEventListener('click', function () {
+    var u = ['nhat', 'linhl7'].join(''), d = ['gmail', 'com'].join('.');
+    var addr = u + '@' + d;
+    var out = document.getElementById('email-out');
+    out.innerHTML = '<a href="mailto:' + addr + '">' + addr + '</a>';
+    this.remove();
+    out.style.marginLeft = '0';
+  });
+
+  // Highlight the current section in the side navigation.
+  var links = document.querySelectorAll('.side nav a');
+  var byId = {};
+  links.forEach(function (a) { byId[a.getAttribute('href').slice(1)] = a; });
+  if ('IntersectionObserver' in window) {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (e.isIntersecting) {
+          links.forEach(function (a) { a.classList.remove('active'); });
+          if (byId[e.target.id]) byId[e.target.id].classList.add('active');
+        }
+      });
+    }, { rootMargin: '-30% 0px -60% 0px' });
+    document.querySelectorAll('main section').forEach(function (s) { io.observe(s); });
+  }
+</script>
+</body>
+</html>
